@@ -5,6 +5,7 @@ import (
 )
 
 type CommentNews struct {
+	ID        string    `bson:"id" json:"comment_id"`
 	UserName  string    `bson:"username" json:"username"`
 	UserID    string    `bson:"user_id" json:"user_id"`
 	Comment   string    `bson:"comment" json:"comment"`

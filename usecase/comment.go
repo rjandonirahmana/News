@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/rjandonirahmana/news/models"
 	"github.com/rjandonirahmana/news/repository"
 )
@@ -20,5 +21,12 @@ func NewUseCaseComent(repo repository.RepoComment) *usecaseComment {
 }
 
 func (u *usecaseComment) CreateComment(newsID *string, comment *models.CommentNews, ctx context.Context) error {
-	return u.repo.CraeteComment(newsID, comment, ctx)
+	id := uuid.New().String()
+	comment.ID = id
+	err := u.repo.CraeteComment(newsID, comment, ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

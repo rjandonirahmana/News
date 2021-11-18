@@ -19,6 +19,8 @@ func NewCommentHandler(service usecase.UsecaseComment) *commentHanlder {
 
 func (h *commentHanlder) CreateComment(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
+
+	user := r.Context().Value("user").(*models.User)
 	var comment models.CommentNews
 
 	err := json.NewDecoder(r.Body).Decode(&comment)
@@ -29,6 +31,9 @@ func (h *commentHanlder) CreateComment(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(resbyte))
 		return
 	}
+
+	comment.UserID = user.ID
+	comment.UserName = user.UserName
 
 	newsID := r.URL.Query().Get("news_id")
 	err = h.usecase.CreateComment(&newsID, &comment, context.TODO())

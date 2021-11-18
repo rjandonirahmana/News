@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/rjandonirahmana/news/models"
@@ -19,7 +20,10 @@ func NewHanlderNews(service usecase.UsecaseNews) *NewsHandler {
 
 func (h *NewsHandler) CreateNews(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
-	var news *models.News
+
+	admin := r.Context().Value("admin").(*models.Admin)
+
+	var news models.News
 
 	err := json.NewDecoder(r.Body).Decode(&news)
 	if err != nil {
@@ -29,14 +33,16 @@ func (h *NewsHandler) CreateNews(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(resbyte))
 		return
 	}
+	news.Author = admin.Email
+	fmt.Println(admin)
 
-	news, err = h.service.CreateNews(news, context.Background())
+	news1, err := h.service.CreateNews(&news, context.Background())
 	if err != nil {
 		w.WriteHeader(500)
 		return
 	}
 
-	resp, _ := json.Marshal(news)
+	resp, _ := json.Marshal(news1)
 	w.Write(resp)
 
 }

@@ -36,12 +36,15 @@ func (r *repoComment) UpdateCommentComment(newsID *string, comment *models.Comme
 
 func (r *repoComment) CraeteComment(newsID *string, comment *models.CommentNews, ctx context.Context) error {
 	filter := bson.M{"id": *newsID}
-	// update := bson.M{"$set" : }
-	_, err := r.db.Collection("news").UpdateOne(ctx, filter, bson.M{"$set": bson.M{"comments": comment}})
+	update := bson.M{"$set": bson.M{"news.comments": comment}}
+	_, err := r.db.Collection("news").UpdateOne(ctx, filter, update)
 
 	if err != nil {
 		return err
 	}
 
 	return nil
+
+	// 	update := bson.M{"$set": bson.M{"data.comments.0.likes": 25}}
+	// updateOne{ctx, filter, update}
 }
