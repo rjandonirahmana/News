@@ -21,6 +21,7 @@ func NewRepoNews(db *mongo.Database) *repoNews {
 type RepoNews interface {
 	CreateNews(news *models.News, ctx context.Context) (*models.News, error)
 	GetNewsByID(id *string, ctx context.Context) (*models.News, error)
+	DeleteNewsByID(newsID *string, ctx context.Context) error
 }
 
 func (r *repoNews) CreateNews(news *models.News, ctx context.Context) (*models.News, error) {
@@ -67,6 +68,21 @@ func (r *repoNews) UpdateNews(news *models.News, ctx context.Context) (*models.N
 
 	return news, nil
 
+}
+
+func (r *repoNews) DeleteNewsByID(newsID *string, ctx context.Context) error {
+
+	filter := bson.M{"_id": *newsID}
+	result, err := r.db.Collection("news").DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	if result.DeletedCount == 0 {
+		return fmt.Errorf("faileed to delete news")
+	}
+
+	return nil
 }
 
 func (r *repoNews) DeleteALLNews(ctx context.Context) error {

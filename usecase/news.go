@@ -16,6 +16,7 @@ type usecaseNews struct {
 type UsecaseNews interface {
 	CreateNews(news *models.News, ctx context.Context) (*models.News, error)
 	GetNewsByID(id *string, ctx context.Context) (*models.News, error)
+	DeleteNewsByID(newsID *string, ctx context.Context) error
 }
 
 func NewServiceNews(repo repository.RepoNews) *usecaseNews {
@@ -38,4 +39,8 @@ func (u *usecaseNews) CreateNews(news *models.News, ctx context.Context) (*model
 
 func (u *usecaseNews) GetNewsByID(id *string, ctx context.Context) (*models.News, error) {
 	return u.repo.GetNewsByID(id, ctx)
+}
+
+func (u *usecaseNews) DeleteNewsByID(newsID *string, ctx context.Context) error {
+	return u.repo.DeleteNewsByID(newsID, ctx)
 }

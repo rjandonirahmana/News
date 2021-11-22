@@ -88,12 +88,22 @@ func TestGetNews(t *testing.T) {
 
 func TestDeleteNews(t *testing.T) {
 
+	testCase := []struct {
+		id string
+	}{
+		{
+			id: "2",
+		},
+	}
+
 	db, err := database.ConnectionMongo("mongodb://localhost:27017", "News", context.Background())
 	assert.NoError(t, err)
 
-	repo := NewRepoNews(db)
+	for _, test := range testCase {
+		repo := NewRepoNews(db)
 
-	err = repo.DeleteALLNews(context.Background())
-	assert.Nil(t, err)
+		err = repo.DeleteNewsByID(&test.id, context.Background())
+		assert.Nil(t, err)
 
+	}
 }

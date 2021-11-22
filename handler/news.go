@@ -50,7 +50,7 @@ func (h *NewsHandler) CreateNews(w http.ResponseWriter, r *http.Request) {
 func (h *NewsHandler) GetNewsByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
 	param := r.URL.Query()
-	id := param.Get("id")
+	id := param.Get("news_id")
 
 	news, err := h.service.GetNewsByID(&id, context.Background())
 	if err != nil {
@@ -65,4 +65,23 @@ func (h *NewsHandler) GetNewsByID(w http.ResponseWriter, r *http.Request) {
 	resByte, _ := json.Marshal(resp)
 	w.Write(resByte)
 
+}
+
+func (h *NewsHandler) DeleteNews(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "aplication/json")
+	param := r.URL.Query()
+	id := param.Get("news_id")
+
+	err := h.service.DeleteNewsByID(&id, context.Background())
+	if err != nil {
+		resp := APIResponse("canot decode json", 422, "error", err.Error())
+		resbyte, _ := json.Marshal(resp)
+		w.WriteHeader(422)
+		w.Write([]byte(resbyte))
+		return
+	}
+
+	resp := APIResponse("success get news", 200, "success", nil)
+	resByte, _ := json.Marshal(resp)
+	w.Write(resByte)
 }
