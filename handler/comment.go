@@ -10,15 +10,15 @@ import (
 	"github.com/rjandonirahmana/news/usecase"
 )
 
-type commentHanlder struct {
+type CommentHanlder struct {
 	usecase usecase.UsecaseComment
 }
 
-func NewCommentHandler(service usecase.UsecaseComment) *commentHanlder {
-	return &commentHanlder{usecase: service}
+func NewCommentHandler(service usecase.UsecaseComment) *CommentHanlder {
+	return &CommentHanlder{usecase: service}
 }
 
-func (h *commentHanlder) CreateComment(w http.ResponseWriter, r *http.Request) {
+func (h *CommentHanlder) CreateComment(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
 
 	user := r.Context().Value("user").(*models.User)
@@ -52,7 +52,7 @@ func (h *commentHanlder) CreateComment(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *commentHanlder) LikeComment(w http.ResponseWriter, r *http.Request) {
+func (h *CommentHanlder) LikeComment(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
 
 	querry := r.URL.Query()

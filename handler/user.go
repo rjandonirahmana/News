@@ -11,16 +11,16 @@ import (
 	"github.com/rjandonirahmana/news/usecase"
 )
 
-type hanlderUser struct {
+type HanlderUser struct {
 	service usecase.UsecaseUser
 	auth    auth.Auth
 }
 
-func NewHandlerUser(service usecase.UsecaseUser, authentication auth.Auth) *hanlderUser {
-	return &hanlderUser{service: service, auth: authentication}
+func NewHandlerUser(service usecase.UsecaseUser, authentication auth.Auth) *HanlderUser {
+	return &HanlderUser{service: service, auth: authentication}
 }
 
-func (h *hanlderUser) Register(w http.ResponseWriter, r *http.Request) {
+func (h *HanlderUser) Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
 	var user *models.User
 
@@ -60,7 +60,7 @@ func (h *hanlderUser) Register(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *hanlderUser) Login(w http.ResponseWriter, r *http.Request) {
+func (h *HanlderUser) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
 	var user *models.User
 

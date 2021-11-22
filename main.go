@@ -45,8 +45,12 @@ func main() {
 	middleWare := handler.NewMiddleWare(authentication, serviceUser, repoAdmin)
 
 	r := mux.NewRouter()
+	//route News
 	route.NewsRoute(r, middleWare, handlerNews)
+	//route admin
 	route.RouteAdmin(r, handlerAdmin)
+	//route user
+	route.RouteUser(r, handlerUser)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"127.0.0.1:7000"},
@@ -56,8 +60,6 @@ func main() {
 
 	r.HandleFunc("/create/comment", middleWare.AuthenticationUser(handlerComment.CreateComment)).Methods("PUT")
 	r.HandleFunc("/like/comment", middleWare.AuthenticationUser(handlerComment.LikeComment)).Methods("PUT")
-	r.HandleFunc("/register", handlerUser.Register).Methods("POST")
-	r.HandleFunc("/login", handlerUser.Login).Methods("POST")
 
 	srv := &http.Server{
 		Handler: r,
