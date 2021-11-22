@@ -24,8 +24,10 @@ func NewServiceNews(repo repository.RepoNews) *usecaseNews {
 
 func (u *usecaseNews) CreateNews(news *models.News, ctx context.Context) (*models.News, error) {
 	news.ID = uuid.New().String()
-	news.Created_at = time.Now()
-	news.Updated_at = time.Now()
+	news.Images = []models.Images{}
+	news.Comment = []models.CommentNews{}
+	news.CreatedAt = time.Now()
+	news.UpdatedAt = time.Now()
 	news, err := u.repo.CreateNews(news, ctx)
 	if err != nil {
 		return nil, err

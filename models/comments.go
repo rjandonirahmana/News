@@ -5,11 +5,11 @@ import (
 )
 
 type CommentNews struct {
-	ID        string    `bson:"id" json:"comment_id"`
-	UserName  string    `bson:"username" json:"username"`
-	UserID    string    `bson:"user_id" json:"user_id"`
+	ID        string    `json:"comment_id" bson:"_id"`
+	UserName  string    `json:"username" bson:"username"`
+	UserID    string    `json:"user_id" bson:"user_id"`
 	Comment   string    `bson:"comment" json:"comment"`
-	Likes     uint      `bson:"likes" json:"likes" validate:"omitempty"`
-	CreatedAt time.Time `bson:"created_at" json:"created_at"`
-	UpdatedAt time.Time `bson:"updated_at" json:"updated_at"`
+	Likes     uint      `json:"likes" bson:"likes"`
+	CreatedAt time.Time `json:"created_at" bson:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" bson:"updated_at"`
 }

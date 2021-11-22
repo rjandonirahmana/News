@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/rjandonirahmana/news/models"
 	"github.com/rjandonirahmana/news/usecase"
@@ -46,6 +47,31 @@ func (h *commentHanlder) CreateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := APIResponse("success create news", 200, "success", nil)
+	resByte, _ := json.Marshal(resp)
+	w.Write(resByte)
+
+}
+
+func (h *commentHanlder) LikeComment(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "aplication/json")
+
+	querry := r.URL.Query()
+	newsID := querry.Get("news_id")
+	commentID := querry.Get("comment_id")
+
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*3)
+	defer cancel()
+
+	err := h.usecase.LikeComment(&newsID, &commentID, ctx)
+	if err != nil {
+		resp := APIResponse("failed to likes comment", 422, "error", err.Error())
+		resbyte, _ := json.Marshal(resp)
+		w.WriteHeader(422)
+		w.Write([]byte(resbyte))
+		return
+	}
+
+	resp := APIResponse("success like comment", 200, "success", nil)
 	resByte, _ := json.Marshal(resp)
 	w.Write(resByte)
 
