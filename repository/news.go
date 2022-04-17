@@ -101,3 +101,8 @@ func (r *repoNews) DeleteALLNews(ctx context.Context) error {
 func (r *repoNews) UpdatePhotoNews(file string, id string, ctx context.Context) (*models.News, error) {
 	return &models.News{}, nil
 }
+
+// func (r *repoNews) GetNewsByCategory(categoryID int, ctx context.Context) ([]*models.News, error) {
+// 	filter := bson.M{"category_id": categoryID}
+// 	r.db.Collection("news").Find(ctx, filter)
+// }

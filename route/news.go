@@ -10,8 +10,8 @@ func NewsRoute(r *mux.Router, middleware *handler.MiddleWare, handler *handler.N
 	//querry news_id
 	r.HandleFunc("/news", handler.GetNewsByID).Methods("GET")
 
-	r.HandleFunc("/news", middleware.AuthenticationAdmin(handler.CreateNews)).Methods("POST")
+	r.HandleFunc("/news", middleware.AuthenticationNews(handler.CreateNews)).Methods("POST")
 	//querry news_id
-	r.HandleFunc("/news", middleware.AuthenticationAdmin(handler.DeleteNews)).Methods("DELETE")
+	r.HandleFunc("/news", middleware.AuthenticationNews(handler.DeleteNews)).Methods("DELETE")
 
 }

@@ -43,7 +43,7 @@ func (r *repoUser) IsEmailAvailable(email *string, ctx context.Context) error {
 		return err
 	}
 
-	return fmt.Errorf("emailhas been used")
+	return fmt.Errorf("email has been used")
 }
 
 func (r *repoUser) GetUserByEmail(email *string, ctx context.Context) (*models.User, error) {
@@ -63,12 +63,13 @@ func (r *repoUser) GetUserByID(id *string, ctx context.Context) (*models.User, e
 	var user *models.User
 
 	err := rslt.Decode(&user)
-	if err != nil {
-		return user, err
-	}
 
 	if err == mongo.ErrNoDocuments {
 		return user, fmt.Errorf("user not found")
+	}
+
+	if err != nil {
+		return user, err
 	}
 
 	return user, nil

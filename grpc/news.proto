@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package news;
+option go_package = "./news";
+
+message CreateNews {
+    string Token = 1;
+    string Tittle = 2;
+}
+
+message CraetedNews {
+    string message = 1;
+
+}
+
+service NewsService {
+    rpc CreateNews (CraetedNews) returns (CraetedNews);
+}

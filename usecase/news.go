@@ -14,7 +14,7 @@ type usecaseNews struct {
 }
 
 type UsecaseNews interface {
-	CreateNews(news *models.News, ctx context.Context) (*models.News, error)
+	CreateNews(news *models.News, photo []byte, ctx context.Context) (*models.News, error)
 	GetNewsByID(id *string, ctx context.Context) (*models.News, error)
 	DeleteNewsByID(newsID *string, ctx context.Context) error
 }
@@ -23,13 +23,42 @@ func NewServiceNews(repo repository.RepoNews) *usecaseNews {
 	return &usecaseNews{repo: repo}
 }
 
-func (u *usecaseNews) CreateNews(news *models.News, ctx context.Context) (*models.News, error) {
+func (u *usecaseNews) CreateNews(news *models.News, photo []byte, ctx context.Context) (*models.News, error) {
 	news.ID = uuid.New().String()
-	news.Images = []models.Images{}
+
+	filename, err := repository.StoreImage("_1", "/home/rjandoni/Desktop/photo/News/"+news.ID+"/", photo)
+	if err != nil {
+		return nil, err
+	}
+
 	news.Comment = []models.CommentNews{}
 	news.CreatedAt = time.Now()
 	news.UpdatedAt = time.Now()
-	news, err := u.repo.CreateNews(news, ctx)
+	news.Images = []models.Images{
+		{
+			ImageName: filename,
+			IsPrimary: true,
+		},
+	}
+
+	switch news.Categroy.ID {
+	case 1:
+		news.Categroy.Name = "health"
+	case 2:
+		news.Categroy.Name = "politic"
+	case 3:
+		news.Categroy.Name = "domestic"
+	case 4:
+		news.Categroy.Name = "hukum"
+	case 5:
+		news.Categroy.Name = "alam"
+	case 6:
+		news.Categroy.Name = "sport"
+	default:
+		news.Categroy.Name = "umun"
+	}
+
+	news, err = u.repo.CreateNews(news, ctx)
 	if err != nil {
 		return nil, err
 	}

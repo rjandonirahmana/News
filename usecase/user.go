@@ -12,21 +12,23 @@ import (
 	"github.com/google/uuid"
 	"github.com/rjandonirahmana/news/models"
 	"github.com/rjandonirahmana/news/repository"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type usecaseUser struct {
-	repo   repository.RepoUser
-	secret string
+	repo      repository.RepoUser
+	repoadmin repository.AdminRepository
+	secret    string
 }
 
 type UsecaseUser interface {
 	CreateUser(user *models.User, ctx context.Context) (*models.User, error)
-	LoginUser(email, password *string, ctx context.Context) (*models.User, error)
+	LoginUser(email, password *string, ctx context.Context) (*models.User, string, error)
 	GetUserByID(id *string, ctx context.Context) (*models.User, error)
 }
 
-func NewUsecCaseUser(repo repository.RepoUser, secret string) *usecaseUser {
-	return &usecaseUser{repo: repo, secret: secret}
+func NewUsecCaseUser(repo repository.RepoUser, secret string, repoadmin repository.AdminRepository) *usecaseUser {
+	return &usecaseUser{repo: repo, secret: secret, repoadmin: repoadmin}
 }
 
 func RandRuneSalt(n uint) string {
@@ -62,20 +64,32 @@ func (u *usecaseUser) CreateUser(user *models.User, ctx context.Context) (*model
 
 }
 
-func (u *usecaseUser) LoginUser(email, password *string, ctx context.Context) (*models.User, error) {
+func (u *usecaseUser) LoginUser(email, password *string, ctx context.Context) (*models.User, string, error) {
 	user, err := u.repo.GetUserByEmail(email, ctx)
 	if err != nil {
-		return user, err
+		return user, "", err
 	}
 
 	h := sha256.New()
 	h.Write([]byte(*password + user.Salt))
 	*password = fmt.Sprintf("%x", h.Sum([]byte(u.secret)))
 	if *password != user.Password {
-		return &models.User{}, fmt.Errorf("please input your password correctly")
+		return nil, "", fmt.Errorf("please input your password correctly")
 	}
 
-	return user, nil
+	var roles string
+	_, err = u.repoadmin.GetAdminByID(&user.ID, ctx)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return nil, "", err
+	}
+
+	if err == mongo.ErrNoDocuments {
+		roles = "user"
+	} else {
+		roles = "admin"
+	}
+
+	return user, roles, nil
 }
 
 func (u *usecaseUser) GetUserByID(id *string, ctx context.Context) (*models.User, error) {

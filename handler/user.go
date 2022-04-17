@@ -12,12 +12,13 @@ import (
 )
 
 type HanlderUser struct {
-	service usecase.UsecaseUser
-	auth    auth.Auth
+	service   usecase.UsecaseUser
+	auth      auth.Auth
+	authredis auth.Authentication
 }
 
-func NewHandlerUser(service usecase.UsecaseUser, authentication auth.Auth) *HanlderUser {
-	return &HanlderUser{service: service, auth: authentication}
+func NewHandlerUser(service usecase.UsecaseUser, authentication auth.Auth, authredis auth.Authentication) *HanlderUser {
+	return &HanlderUser{service: service, auth: authentication, authredis: authredis}
 }
 
 func (h *HanlderUser) Register(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +45,7 @@ func (h *HanlderUser) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.auth.CreateToken(&user.ID)
+	token, err := h.authredis.GenerateToken(ctx, user.Email, user.ID, "user")
 	if err != nil {
 		resp := APIResponse("failed to generate token", 422, "error", err.Error())
 		resbyte, _ := json.Marshal(resp)
@@ -53,7 +54,7 @@ func (h *HanlderUser) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := APIResponseToken("success create new user", 200, "success", user, *token)
+	response := APIResponseToken("success create new user", 200, "success", user, token)
 	respByte, _ := json.Marshal(response)
 	w.WriteHeader(200)
 	w.Write(respByte)
@@ -75,7 +76,8 @@ func (h *HanlderUser) Login(w http.ResponseWriter, r *http.Request) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	user, err = h.service.LoginUser(&user.Email, &user.Password, ctx)
+	
+	user, roles, err := h.service.LoginUser(&user.Email, &user.Password, ctx)
 	if err != nil {
 		resp := APIResponse("failed to login", 422, "error", err.Error())
 		resbyte, _ := json.Marshal(resp)
@@ -84,7 +86,7 @@ func (h *HanlderUser) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.auth.CreateToken(&user.ID)
+	token, err := h.authredis.GenerateToken(ctx, user.Email, user.ID, roles)
 	if err != nil {
 		resp := APIResponse("failed to generate token", 422, "error", err.Error())
 		resbyte, _ := json.Marshal(resp)
@@ -93,7 +95,7 @@ func (h *HanlderUser) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := APIResponseToken("success login", 200, "success", user, *token)
+	response := APIResponseToken("success login", 200, "success", user, token)
 	respByte, _ := json.Marshal(response)
 	w.WriteHeader(200)
 	w.Write(respByte)

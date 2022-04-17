@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/rjandonirahmana/news/models"
 	"github.com/rjandonirahmana/news/usecase"
@@ -21,25 +23,52 @@ func NewHanlderNews(service usecase.UsecaseNews) *NewsHandler {
 func (h *NewsHandler) CreateNews(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "aplication/json")
 
-	admin := r.Context().Value("admin").(*models.Admin)
+	admin := r.Context().Value("user").(*models.User)
 
 	var news models.News
 
-	err := json.NewDecoder(r.Body).Decode(&news)
+	photo, _, err := r.FormFile("photo")
 	if err != nil {
-		resp := APIResponse("canot decode json", 422, "error", err.Error())
+		resp := APIResponse("failed pass photo", 422, "error", err.Error())
 		resbyte, _ := json.Marshal(resp)
 		w.WriteHeader(422)
 		w.Write([]byte(resbyte))
 		return
 	}
+
+	file, err := ioutil.ReadAll(photo)
+	if err != nil {
+		resp := APIResponse("failed read file photo", 422, "error", err.Error())
+		resbyte, _ := json.Marshal(resp)
+		w.WriteHeader(422)
+		w.Write([]byte(resbyte))
+		return
+	}
+	category := r.FormValue("category")
+	categoryID, err := strconv.Atoi(category)
+	if err != nil {
+		resp := APIResponse("category is not int", 422, "error", err.Error())
+		resbyte, _ := json.Marshal(resp)
+		w.WriteHeader(422)
+		w.Write([]byte(resbyte))
+		return
+	}
+
+	news.Name = r.FormValue("title")
+	news.Categroy.ID = categoryID
+	news.Content = r.FormValue("content")
+	news.Location = r.FormValue("location")
 	news.Author = admin.Email
 	fmt.Println(admin)
 
-	news1, err := h.service.CreateNews(&news, context.Background())
+	news1, err := h.service.CreateNews(&news, file, context.Background())
 	if err != nil {
+		resp := APIResponse("failed read file photo", 422, "error", err.Error())
+		resbyte, _ := json.Marshal(resp)
 		w.WriteHeader(500)
+		w.Write([]byte(resbyte))
 		return
+
 	}
 
 	resp, _ := json.Marshal(news1)
