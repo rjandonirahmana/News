@@ -23,6 +23,8 @@ import (
 func main() {
 
 	dbmongo, err := database.ConnectionMongo("mongodb://localhost:27017", "News", context.Background())
+	log.Println(dbmongo)
+	log.Println(err)
 
 	if err != nil {
 		log.Fatal(err)
